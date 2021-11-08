@@ -29,7 +29,7 @@ class Recipe(models.Model):
         blank=False
     )
     image = models.ImageField(verbose_name='Изображение блюда', blank=True)
-    description = models.TextField(verbose_name='Описание')
+    text = models.TextField(verbose_name='Описание')
     ingredients = models.ManyToManyField('Ingredient', related_name='recipes')
     tag = models.ManyToManyField(
         'Tag',
@@ -40,13 +40,16 @@ class Recipe(models.Model):
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
         auto_now_add=True)
-    cooking_time = models.DurationField(
+    cooking_time = models.IntegerField(
         verbose_name='Время приготовления',
         blank=False
     )
 
     def __str__(self):
         return self.name
+    
+    class Meta:
+        ordering = ['-pub_date']
 
 
 class Tag(models.Model):
