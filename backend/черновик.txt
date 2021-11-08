@@ -1,0 +1,3 @@
+is_in_shopping_cart = models.BooleanField('В корзине', default=False,)
+ingredients = ('Ингридиенты')
+is_favorited = ('В избранном')
