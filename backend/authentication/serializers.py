@@ -20,15 +20,14 @@ class EmailAuthTokenSerializer(AuthTokenSerializer):
         if email and password:
             user = authenticate(request=self.context.get('request'),
                                 email=email, password=password)
-
             # The authenticate call simply returns None for is_active=False
             # users. (Assuming the default ModelBackend authentication
             # backend.)
             if not user:
-                msg = ('Unable to log in with provided credentials.')
+                msg = ('Не удалось распознать комбинацию для входа.')
                 raise serializers.ValidationError(msg, code='authorization')
         else:
-            msg = ('Must include "email" and "password".')
+            msg = ('"email" и "password" обязательные поля.')
             raise serializers.ValidationError(msg, code='authorization')
 
         attrs['user'] = user

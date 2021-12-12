@@ -1,4 +1,4 @@
-FROM python:3-slim
+FROM python:3.9
 LABEL author="rorshih@gmail.com"
 WORKDIR /backend
 COPY . .

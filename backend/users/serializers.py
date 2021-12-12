@@ -7,7 +7,7 @@ from recipes.models import Recipe
 
 
 class SimpleRecipeSerializer(serializers.ModelSerializer):
-
+    """Serializer for user list view, with short fieldset"""
     class Meta:
         model = Recipe
         fields = ['id', 'name', 'image', 'cooking_time']
@@ -18,15 +18,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         """Cheking subscription"""
-        try:
-            follow_obj = Follow.objects.get(
-                user_id=self.context['request'].user,
-                following=obj
-            )
-        except Follow.DoesNotExist:
-            follow_obj = False
+        user = self.context.get('request').user
+        if user.is_authenticated:
+            try:
+                user = self.context.get('request').user
+                follow_obj = Follow.objects.get(
+                    user=user,
+                    following=obj
+                )
+            except Follow.DoesNotExist:
+                follow_obj = False
 
-        return bool(follow_obj)
+            return bool(follow_obj)
+
+        return False
 
     class Meta:
         model = User

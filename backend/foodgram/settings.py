@@ -1,9 +1,13 @@
+from pathlib import Path
 
-import os
+import environ
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SECRET_KEY = 'npz&y-ak_rho^l4jz^v&dg-$im=e_pv0oi5dl9cmc&54oz3g2t'
+env = environ.Env()
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+SECRET_KEY = env('SECRET_KEY')
 
 DEBUG = True
 
@@ -20,7 +24,6 @@ DJANGO_APPS = [
 
 PROJECT_APPS = [
     'recipes.apps.RecipesConfig',
-    'shoppingcart.apps.ShoppingcartConfig',
     'users.apps.UsersConfig',
 ]
 
@@ -28,7 +31,8 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'colorfield',
-    'django_filters'
+    'django_filters',
+    'reportlab'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -69,8 +73,12 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': env('POSTGRES_DB'),
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': env('POSTGRES_HOST'),
+        'PORT': env('POSTGRES_PORT'),
     }
 }
 
@@ -93,16 +101,19 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
     ],
-
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication'
     ],
-    # 'EXCEPTION_HANDLER': 'users.exceptions.custom_exception_handler',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'users.pagination.CustomResultsPagination',
+    'PAGE_SIZE': 6,
+    'DATETIME_FORMAT': '%Y-%m-%dT%H:%M:%S',
+    'TEST_REQUEST_DEFAULT_FORMAT': 'json',
 }
 
-FILTERS_DEFAULT_LOOKUP_EXPR = 'icontains'
-
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -112,8 +123,10 @@ USE_L10N = True
 
 USE_TZ = True
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = str(BASE_DIR / 'static')
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = str(BASE_DIR / 'media')

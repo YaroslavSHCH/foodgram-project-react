@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -18,22 +18,51 @@ from .serializers import (ChangePasswordSerializer,
 class UserViewSet(ModelCVViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = (IsAuthenticated,)
     pagination_class = CustomResultsPagination
 
-    def retrieve(self, request, *args, **kwargs):
-        """"Method with url kwargs handler."""
-        if kwargs.get('pk') == 'me':
-            user = User.objects.get(id=request.user.id)
-        else:
-            user = User.objects.get(id=kwargs.get('pk'))
-        serializer = self.get_serializer(user)
-        return Response(serializer.data)
+    @action(methods=['get'],
+            detail=False,
+            permission_classes=[IsAuthenticated])
+    def me(self, request, pk=None):
+        user = self.request.user
+        serializer = UserSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['get', 'delete'],
+            detail=True,
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk=None):
+        user = self.request.user
+        following = self.get_object()
+        if request.method == 'GET':
+            subscribe = Follow.objects.get_or_create(
+                user=user,
+                following=following)
+            if not subscribe[1]:
+                return Response(
+                    {'detail': 'Вы уже подписаны на этого пользователя'},
+                    status.HTTP_400_BAD_REQUEST)
+
+            serializer = SubscribeSerializer(
+                following,
+                context={'request': request}
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        if request.method == 'DELETE':
+            subscribe = get_object_or_404(
+                Follow,
+                user=user,
+                following=following
+            )
+            subscribe.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class SubscriptionViewSet(ModelViewSet):
     serializer_class = SubscribeSerializer
     pagination_class = CustomResultsPagination
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
@@ -48,31 +77,9 @@ class SubscriptionViewSet(ModelViewSet):
         return users
 
 
-@api_view(['GET', 'DELETE'])
-def add_subscription(request, **kwargs):
-    if request.method == 'GET':
-        user = request.user
-        following = get_object_or_404(User, id=kwargs['user_id'])
-        if Follow.objects.get_or_create(user=user, following=following)[1]:
-            return Response(SubscribeSerializer(
-                following, context={'request': request}).data)
-
-        return Response({'error': 'Вы уже подписаны на данного пользователя'},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    if request.method == 'DELETE':
-        user = request.user
-        subscribe = get_object_or_404(
-            Follow, following_id=kwargs['user_id'], user=user)
-        subscribe.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-    return Response({'error': 'Не допустимый тип запроса'})
-
-
 class UpdatePasswordAPIView(APIView):
     """An endpoint for changing password."""
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated]
 
     def get_object(self):
         return self.request.user
@@ -82,10 +89,9 @@ class UpdatePasswordAPIView(APIView):
         serializer = ChangePasswordSerializer(data=request.data)
 
         if serializer.is_valid():
-            # Check old password
             old_password = serializer.data.get("current_password")
             if not self.object.check_password(old_password):
-                return Response({"old_password": ["Wrong password."]},
+                return Response({"current_password": "Неверный пароль"},
                                 status=status.HTTP_400_BAD_REQUEST)
             self.object.set_password(serializer.data.get("new_password"))
             self.object.save()

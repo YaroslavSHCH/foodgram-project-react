@@ -9,7 +9,7 @@ class User(AbstractUser):
         error_messages={'required': 'Поле должно быть заполнено',
                         'unique': ('Пользователь с таким '
                                    'username уже зарегестрирован')},
-        validators=[RegexValidator(regex='^[\w.@+-]+$')]
+        validators=[RegexValidator(regex=r'^[\w.@+-]+$')]
     )
     email = models.EmailField(
         'Электронная почта',
@@ -33,20 +33,14 @@ class User(AbstractUser):
         ordering = ['-id']
 
     def __str__(self):
-        return self.email
-
-    def get_full_name(self):
-        return self.username
-
-    def get_short_name(self):
-        return self.username
+        return self.get_full_name()
 
 
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        related_name='followers'
+        related_name='followers',
     )
     following = models.ForeignKey(
         User,
