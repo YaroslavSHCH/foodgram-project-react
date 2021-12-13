@@ -1,8 +1,7 @@
+from colorfield.fields import ColorField
+from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.contrib.auth import get_user_model
-
-from colorfield.fields import ColorField
 
 User = get_user_model()
 
@@ -40,24 +39,24 @@ class FavoriteAndShoppingCart(models.Model):
             )
         ]
         ordering = ['-is_in_shopping_cart', '-is_favorited', 'user']
+        verbose_name = 'Избранное и корзина'
+        verbose_name_plural = 'Избранное и корзины'
 
 
 class Recipe(models.Model):
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
-        blank=False,
         on_delete=models.CASCADE,
         related_name='recipes'
     )
     name = models.CharField(
         verbose_name='Название рецепта',
         max_length=100,
-        blank=False
+        unique=True
     )
     image = models.ImageField(
         verbose_name='Изображение блюда',
-        blank=False,
     )
     text = models.TextField(verbose_name='Описание рецепта')
     ingredients = models.ManyToManyField(
@@ -66,13 +65,11 @@ class Recipe(models.Model):
         related_name='recipes',
         through='IngredientAmount',
         through_fields=['recipe', 'ingredient'],
-        blank=False
     )
     tags = models.ManyToManyField(
         'Tag',
         verbose_name='Тег',
         related_name='recipes',
-        blank=False,
     )
     pub_date = models.DateTimeField(
         verbose_name='Дата публикации',
@@ -80,15 +77,8 @@ class Recipe(models.Model):
     )
     cooking_time = models.SmallIntegerField(
         verbose_name='Время приготовления',
-        blank=False,
         validators=[MinValueValidator(1)]
     )
-
-    def __str__(self):
-        return self.name
-
-    def list_tags(self):
-        return self.tags.values_list('name', flat=True)
 
     class Meta:
         constraints = [
@@ -101,22 +91,32 @@ class Recipe(models.Model):
             )
         ]
         ordering = ['-pub_date']
-
-
-class Tag(models.Model):
-    name = models.CharField(
-        max_length=32,
-        unique=True,
-        verbose_name='Название тега'
-    )
-    colour = ColorField(verbose_name='Цвет тега', unique=True, format='hex')
-    slug = models.SlugField(verbose_name='Слаг', max_length=32)
+        verbose_name = 'Рецепт'
+        verbose_name_plural = 'Рецепты'
 
     def __str__(self):
         return self.name
 
+    def list_tags(self):
+        return self.tags.values_list('name', flat=True)
+
+
+class Tag(models.Model):
+    name = models.CharField(
+        verbose_name='Название тега',
+        max_length=32,
+        unique=True,
+    )
+    color = ColorField(verbose_name='Цвет тега', unique=True, format='hex')
+    slug = models.SlugField(verbose_name='Слаг', unique=True, max_length=32)
+
     class Meta:
         ordering = ['id']
+        verbose_name = 'Тег'
+        verbose_name_plural = 'Теги'
+
+    def __str__(self):
+        return self.name
 
 
 class Ingredient(models.Model):
@@ -125,6 +125,11 @@ class Ingredient(models.Model):
         verbose_name='Единица измерения',
         max_length=16
     )
+
+    class Meta:
+        ordering = ['id']
+        verbose_name = 'Ингредиент'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return '{}, {}'.format(self.name, self.measurement_unit)
@@ -155,3 +160,5 @@ class IngredientAmount(models.Model):
                 name='restrict_double',
             )
         ]
+        verbose_name = 'Количество ингредиента'
+        verbose_name_plural = 'Количество ингредиентов'

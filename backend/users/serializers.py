@@ -1,9 +1,9 @@
 from django.contrib.auth.password_validation import validate_password
-
 from rest_framework import serializers
 
-from .models import Follow, User
 from recipes.models import Recipe
+
+from .models import Follow, User
 
 
 class SimpleRecipeSerializer(serializers.ModelSerializer):
@@ -33,6 +33,17 @@ class UserSerializer(serializers.ModelSerializer):
 
         return False
 
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            username=validated_data['username'],
+            email=validated_data['email'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
+
     class Meta:
         model = User
         fields = [
@@ -41,7 +52,7 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed',
+            'is_subscribed'
         ]
 
 

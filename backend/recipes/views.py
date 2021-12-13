@@ -1,24 +1,22 @@
-from django.shortcuts import get_object_or_404
 from django.db.models import Sum
-from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
-from rest_framework.viewsets import ReadOnlyModelViewSet
-from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from users.pagination import CustomResultsPagination
-from .models import Recipe, Tag, Ingredient, FavoriteAndShoppingCart
-from .viewsets import ModelCUVDViewSet
-from .filters import RecipeFilter, IngredientFilter
+
 from .common.pdfmaker import pdf_shopping_list_maker
-from .serializers import (RecipeSerializer,
-                          TagSerializer,
-                          IngredientViewSerializer,
-                          FavoriteAndShoppingCartSerializer)
+from .filters import IngredientFilter, RecipeFilter
+from .models import FavoriteAndShoppingCart, Ingredient, Recipe, Tag
+from .serializers import (FavoriteAndShoppingCartSerializer,
+                          IngredientViewSerializer, RecipeSerializer,
+                          TagSerializer)
+from .viewsets import ModelCUVDViewSet
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -63,7 +61,7 @@ class RecipeViewSet(ModelCUVDViewSet):
         if request.method == 'GET':
             try:
                 check_already = recipe.is_favorited.get().is_favorited
-            except ObjectDoesNotExist:
+            except FavoriteAndShoppingCart.DoesNotExist:
                 check_already = False
 
             if check_already:
@@ -107,7 +105,7 @@ class RecipeViewSet(ModelCUVDViewSet):
         if request.method == 'GET':
             try:
                 check_already = recipe.is_favorited.get().is_in_shopping_cart
-            except ObjectDoesNotExist:
+            except FavoriteAndShoppingCart.DoesNotExist:
                 check_already = False
 
             if check_already:
@@ -151,14 +149,15 @@ class RecipeViewSet(ModelCUVDViewSet):
             in_favorites__user=user,
             in_favorites__is_in_shopping_cart=True
         )
-        if not recipes:
-            return Response('Shopping cart is empty :(')
         ingredients = recipes.values(
             'ingredients__name',
             'ingredients__measurement_unit').order_by(
             'ingredients__name').annotate(
             ingredients_sum=Sum('ingredients_amount__amount')
         )
+
+        if not recipes:
+            return Response('Shopping cart is empty :(')
         for product in ingredients:
             item = product.get('ingredients__name')
             count = str(product.get('ingredients_sum'))+' '+product[

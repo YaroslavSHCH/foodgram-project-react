@@ -31,6 +31,8 @@ class User(AbstractUser):
 
     class Meta:
         ordering = ['-id']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.get_full_name()
@@ -39,11 +41,13 @@ class User(AbstractUser):
 class Follow(models.Model):
     user = models.ForeignKey(
         User,
+        verbose_name='Подписчик',
         on_delete=models.CASCADE,
         related_name='followers',
     )
     following = models.ForeignKey(
         User,
+        verbose_name='На кого подписан',
         on_delete=models.CASCADE,
         related_name='followings'
     )
@@ -59,3 +63,11 @@ class Follow(models.Model):
                 name='self_following_check',
             )
         ]
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+
+        def __str__(self):
+            return '{} -> {}'.format(
+                self.user.username,
+                self.following.username
+            )

@@ -1,18 +1,16 @@
 from django.shortcuts import get_object_or_404
-
-from rest_framework.decorators import action
-from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
 
-from .pagination import CustomResultsPagination
 from .models import Follow, User
+from .pagination import CustomResultsPagination
+from .serializers import (ChangePasswordSerializer, SubscribeSerializer,
+                          UserSerializer)
 from .viewsets import ModelCVViewSet
-from .serializers import (ChangePasswordSerializer,
-                          UserSerializer,
-                          SubscribeSerializer)
 
 
 class UserViewSet(ModelCVViewSet):
@@ -87,14 +85,11 @@ class UpdatePasswordAPIView(APIView):
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()
         serializer = ChangePasswordSerializer(data=request.data)
-
-        if serializer.is_valid():
-            old_password = serializer.data.get("current_password")
-            if not self.object.check_password(old_password):
-                return Response({"current_password": "Неверный пароль"},
-                                status=status.HTTP_400_BAD_REQUEST)
-            self.object.set_password(serializer.data.get("new_password"))
-            self.object.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        old_password = serializer.validated_data.get('current_password')
+        if not self.object.check_password(old_password):
+            return Response({'current_password': 'Неверный пароль'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        self.object.set_password(serializer.validated_data.get('new_password'))
+        self.object.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)

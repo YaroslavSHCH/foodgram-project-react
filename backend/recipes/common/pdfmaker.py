@@ -1,10 +1,10 @@
-import os
 import io
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
+import os
 
 from django.http import FileResponse
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfgen import canvas
 
 FONT_PATH = os.path.dirname(os.path.abspath(__file__))
 times_font = os.path.join(FONT_PATH, 'times.ttf')
