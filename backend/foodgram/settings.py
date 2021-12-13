@@ -1,15 +1,11 @@
-import os
-
 import environ
-
-# from pathlib import Path
+from pathlib import Path
 
 
 env = environ.Env()
 environ.Env.read_env()
 
-# BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = env('SECRET_KEY')
 
@@ -77,20 +73,14 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
+        'NAME': env('POSTGRES_DB'),
+        'USER': env('POSTGRES_USER'),
+        'PASSWORD': env('POSTGRES_PASSWORD'),
+        'HOST': env('POSTGRES_HOST'),
+        'PORT': env('POSTGRES_PORT'),
     }
 }
-# DATABASES = {
-#     'default': {
-#         'ENGINE': env('DB_ENGINE', default='django.db.backends.postgresql'),
-#         'NAME': env('POSTGRES_DB'),
-#         'USER': env('POSTGRES_USER'),
-#         'PASSWORD': env('POSTGRES_PASSWORD'),
-#         'HOST': env('POSTGRES_HOST'),
-#         'PORT': env('POSTGRES_PORT'),
-#     }
-# }
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -136,11 +126,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
-# STATIC_ROOT = str(BASE_DIR / 'static')
+STATIC_ROOT = str(BASE_DIR / 'static')
 
 MEDIA_URL = '/media/'
-# MEDIA_ROOT = str(BASE_DIR / 'media')
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-
-STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+MEDIA_ROOT = str(BASE_DIR / 'media')

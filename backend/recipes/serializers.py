@@ -5,9 +5,9 @@ from rest_framework import serializers
 
 from users.serializers import UserSerializer
 
+from .common.validation_errors import DETAILS
 from .models import (FavoriteAndShoppingCart, Ingredient, IngredientAmount,
                      Recipe, Tag)
-from .common.validation_errors import DETAILS
 
 
 class IngredientViewSerializer(serializers.ModelSerializer):
