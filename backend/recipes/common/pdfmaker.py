@@ -13,7 +13,6 @@ pdfmetrics.registerFont(TTFont('times', times_font))
 
 def pdf_shopping_list_maker(shopping_list):
     """Creates pdf tamplate > printing strings > response pdf as attachment"""
-    # pagesize=(595.27,841.89)
     start_x = 72
     start_y = 700
     buffer = io.BytesIO()

@@ -31,7 +31,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     filter_horizontal = ('tags',)
     search_fields = ('author',)
-    list_filter = ('author', 'name', 'tags', 'ingredients', 'cooking_time')
+    list_filter = ('author', 'name', 'tags', 'cooking_time')
     empty_value_display = '-'
     inlines = [IngredientAmountInline]
 

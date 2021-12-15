@@ -4,7 +4,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
 
 from .models import Follow, User
 from .pagination import CustomResultsPagination
@@ -56,23 +55,23 @@ class UserViewSet(ModelCVViewSet):
             subscribe.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @action(
+        methods=['get'],
+        detail=False,
+        serializer_class=SubscribeSerializer,
+        permission_classes=[IsAuthenticated],
+        pagination_class=CustomResultsPagination
+    )
+    def subscriptions(self, request, *args, **kwargs):
+        user = request.user
+        queryset = User.objects.filter(followings__user=user)
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = SubscribeSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
 
-class SubscriptionViewSet(ModelViewSet):
-    serializer_class = SubscribeSerializer
-    pagination_class = CustomResultsPagination
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        user = self.request.user
-        follows = Follow.objects.filter(
-            user=user
-        ).select_related(
-            'following'
-        ).values_list(
-            'following_id', flat=True
-        )
-        users = User.objects.filter(id__in=follows)
-        return users
+        serializer = SubscribeSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UpdatePasswordAPIView(APIView):

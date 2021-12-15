@@ -2,8 +2,7 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 
 from recipes.models import Recipe
-
-from .models import Follow, User
+from .models import User
 
 
 class SimpleRecipeSerializer(serializers.ModelSerializer):
@@ -16,22 +15,9 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
 
-    def get_is_subscribed(self, obj):
+    def get_is_subscribed(self, user, *args, **kwargs):
         """Cheking subscription"""
-        user = self.context.get('request').user
-        if user.is_authenticated:
-            try:
-                user = self.context.get('request').user
-                follow_obj = Follow.objects.get(
-                    user=user,
-                    following=obj
-                )
-            except Follow.DoesNotExist:
-                follow_obj = False
-
-            return bool(follow_obj)
-
-        return False
+        return user.followings.filter().exists()
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -65,8 +51,16 @@ class SubscribeSerializer(UserSerializer):
         return serializer.data
 
     class Meta(UserSerializer.Meta):
-        model = UserSerializer.Meta.model
-        fields = UserSerializer.Meta.fields + ['recipes']
+        model = User
+        fields = [
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes'
+        ]
 
 
 class ChangePasswordSerializer(serializers.Serializer):
