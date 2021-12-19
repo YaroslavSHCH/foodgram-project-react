@@ -68,7 +68,7 @@ class RecipeSerializer(serializers.ModelSerializer):
             FavoriteAndShoppingCart.objects.get(
                 recipe=recipe,
                 user=request.user,
-                is_in_shopping_cart=True
+                is_favorited=True
             )
         except FavoriteAndShoppingCart.DoesNotExist:
             return False
