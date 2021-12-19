@@ -58,7 +58,7 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          stack_file_name: docker-compose.yaml
+          stack_file_name: infra/docker-compose.yaml
           script: |
             sudo docker pull yashch/praktikum:foodgram-web
             sudo docker-compose stop
