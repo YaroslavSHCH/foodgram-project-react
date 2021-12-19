@@ -45,7 +45,6 @@ class UserViewSet(ModelCVViewSet):
                 context={'request': request}
             )
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         if request.method == 'DELETE':
             subscribe = get_object_or_404(
                 Follow,

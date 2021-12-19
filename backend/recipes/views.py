@@ -111,7 +111,6 @@ class RecipeViewSet(ModelCUVDViewSet):
         }
         if request.method == 'GET':
             return self.favorite_shopping_cart_add(defaults=defaults)
-
         if request.method == 'DELETE':
             return self.favorite_shopping_cart_delete(defaults=defaults)
 
@@ -127,7 +126,6 @@ class RecipeViewSet(ModelCUVDViewSet):
         }
         if request.method == 'GET':
             return self.favorite_shopping_cart_add(defaults=defaults)
-
         if request.method == 'DELETE':
             return self.favorite_shopping_cart_delete(defaults=defaults)
 
