@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from users.pagination import CustomResultsPagination
+
 from .common.pdfmaker import pdf_shopping_list_maker
 from .filters import IngredientFilter, RecipeFilter
 from .models import FavoriteAndShoppingCart, Ingredient, Recipe, Tag
