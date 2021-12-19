@@ -16,7 +16,7 @@ _GitHub Actions, Docker, Nginx, YandexCloud_
 
 ## Подготовка проекта
 ### 1. Установить Docker и Docker-compose.
-### 2. Клонирвать репозиторий.
+### 2. Клонировать репозиторий.
 ### 3. Наполнить необходимым .env (secret key django, secrets для PostgreSQL и пр.)
 (Необходимо заполнить POSTGRES_USER и POSTGRES_PASSWORD)
 При запуске на сервере:
