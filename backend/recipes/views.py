@@ -149,7 +149,7 @@ class RecipeViewSet(ModelCUVDViewSet):
             return Response('Ваша корзина пуста')
         for product in ingredients:
             item = product.get('ingredients__ingredient__name')
-            count = str(product.get('ingredients_sum'))+' '+product[
+            count = str(product.get('ingredients_sum')) + ' ' + product[
                 'ingredients__ingredient__measurement_unit'
             ]
             shopping_list[item] = count
