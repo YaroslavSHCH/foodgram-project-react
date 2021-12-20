@@ -21,7 +21,7 @@ def pdf_shopping_list_maker(shopping_list):
     pdf.drawString(150, 800, "Список покупок Foodgram")
     pdf.setFont('times', 16)
     for ingredient, count in shopping_list.items():
-        pdf.drawString(start_x, start_y, ingredient.capitalize() + " " + count)
+        pdf.drawString(start_x, start_y, ingredient.capitalize()+" "+count)
         start_y -= 30
     pdf.setFont('Helvetica', 14)
     pdf.setFillColorRGB(1, 0, 0)

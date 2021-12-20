@@ -9,7 +9,6 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from users.pagination import CustomResultsPagination
-
 from .common.pdfmaker import pdf_shopping_list_maker
 from .filters import IngredientFilter, RecipeFilter
 from .models import FavoriteAndShoppingCart, Ingredient, Recipe, Tag
@@ -150,7 +149,7 @@ class RecipeViewSet(ModelCUVDViewSet):
             return Response('Ваша корзина пуста')
         for product in ingredients:
             item = product.get('ingredients__ingredient__name')
-            count = str(product.get('ingredients_sum')) + ' ' + product[
+            count = str(product.get('ingredients_sum'))+' '+product[
                 'ingredients__ingredient__measurement_unit'
             ]
             shopping_list[item] = count
