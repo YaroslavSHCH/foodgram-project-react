@@ -59,6 +59,7 @@ class RecipeViewSet(ModelCUVDViewSet):
 
     def favorite_shopping_cart_add(self, defaults):
         recipe = defaults.get('recipe')
+        user = defaults.get('user')
         if defaults.get('is_favorited'):
             try:
                 check_already = recipe.is_favorited.get().is_favorited
@@ -76,7 +77,11 @@ class RecipeViewSet(ModelCUVDViewSet):
         if check_already:
             return Response(detail, status.HTTP_400_BAD_REQUEST)
 
-        FavoriteAndShoppingCart.objects.update_or_create(defaults=defaults)
+        FavoriteAndShoppingCart.objects.update_or_create(
+            recipe=recipe,
+            user=user,
+            defaults=defaults
+        )
         return Response(
             FavoriteAndShoppingCartSerializer(recipe).data,
             status=status.HTTP_201_CREATED
