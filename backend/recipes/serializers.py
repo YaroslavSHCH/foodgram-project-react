@@ -86,6 +86,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             return False
         return True
 
+    def to_representation(self, instance):
+        self.fields['tags'] = TagSerializer(many=True)
+        return super().to_representation(instance)
+
     def validate(self, data):
         ingredients = data['ingredients']
         ingredients_dict = {}
@@ -142,6 +146,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         self.ingredients_create_or_update('update', ingredients, instance)
         tags = validated_data.pop('tags')
         instance.tags.add(*tags)
+        super().update(instance, validated_data)
         return instance
 
     class Meta:
