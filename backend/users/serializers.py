@@ -14,6 +14,7 @@ class SimpleRecipeSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
+    password = serializers.CharField(write_only=True)
 
     def get_is_subscribed(self, user, *args, **kwargs):
         """Cheking subscription"""
@@ -38,7 +39,8 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'first_name',
             'last_name',
-            'is_subscribed'
+            'is_subscribed',
+            'password'
         ]
 
 
