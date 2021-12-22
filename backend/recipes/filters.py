@@ -14,12 +14,24 @@ class RecipeFilter(FilterSet):
         to_field_name='slug',
         queryset=Tag.objects.all(),
     )
-    is_favorited = BooleanFilter(
-        field_name='is_favorited__is_favorited'
-    )
-    is_in_shopping_cart = BooleanFilter(
-        field_name='is_favorited__is_in_shopping_cart',
-    )
+    is_favorited = BooleanFilter(method='favorite_filter')
+    is_in_shopping_cart = BooleanFilter(method='shopping_cart_filter')
+
+    def shopping_cart_filter(self, queryset, name, value):
+        if self.request.user.is_authenticated and value:
+            return queryset.filter(
+                is_favorited__user=self.request.user,
+                is_favorited__is_in_shopping_cart=value
+            )
+        return queryset
+
+    def favorite_filter(self, queryset, name, value):
+        if self.request.user.is_authenticated and value:
+            return queryset.filter(
+                is_favorited__user=self.request.user,
+                is_favorited__is_favorited=value
+            )
+        return queryset
 
     class Meta:
         model = Recipe
