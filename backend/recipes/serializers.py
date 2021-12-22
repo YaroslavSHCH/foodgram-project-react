@@ -4,8 +4,7 @@ from rest_framework import serializers
 
 from users.serializers import UserSerializer
 from .common.validation_errors import DETAILS
-from .models import (FavoriteAndShoppingCart, Ingredient, IngredientAmount,
-                     Recipe, Tag)
+from .models import Ingredient, IngredientAmount, Recipe, Tag
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -64,31 +63,15 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def get_is_favorited(self, recipe):
         request = self.context.get('request')
-        if not request.user.is_authenticated:
+        if not request or not request.user.is_authenticated:
             return False
-        try:
-            FavoriteAndShoppingCart.objects.get(
-                recipe=recipe,
-                user=request.user,
-                is_favorited=True
-            )
-        except FavoriteAndShoppingCart.DoesNotExist:
-            return False
-        return True
+        return recipe.is_favorited.filter(user=request.user, is_favorited=True).exists()
 
     def get_is_in_shopping_cart(self, recipe):
         request = self.context.get('request')
-        if not request.user.is_authenticated:
+        if not request or not request.user.is_authenticated:
             return False
-        try:
-            FavoriteAndShoppingCart.objects.get(
-                recipe=recipe,
-                user_id=request.user.id,
-                is_in_shopping_cart=True
-            )
-        except FavoriteAndShoppingCart.DoesNotExist:
-            return False
-        return True
+        return recipe.is_favorited.filter(user=request.user, is_in_shopping_cart=True).exists()
 
     def to_representation(self, instance):
         self.fields['tags'] = TagSerializer(many=True)
@@ -147,8 +130,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
+        IngredientAmount.objects.filter(recipe=instance).delete()
         self.ingredients_create_or_update('update', ingredients, instance)
         tags = validated_data.pop('tags')
+        instance.tags.clear()
         instance.tags.add(*tags)
         super().update(instance, validated_data)
         return instance
