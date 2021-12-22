@@ -16,9 +16,12 @@ class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
     password = serializers.CharField(write_only=True)
 
-    def get_is_subscribed(self, user, *args, **kwargs):
+    def get_is_subscribed(self, obj, *args, **kwargs):
         """Cheking subscription"""
-        return user.followings.filter().exists()
+        request = self.context.get('request')
+        if not request or not request.user.is_authenticated:
+            return False
+        return request.user.followers.filter(following=obj).exists()
 
     def create(self, validated_data):
         user = User.objects.create_user(
