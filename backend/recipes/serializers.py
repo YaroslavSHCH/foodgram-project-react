@@ -65,13 +65,19 @@ class RecipeSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
-        return recipe.is_favorited.filter(user=request.user, is_favorited=True).exists()
+        return recipe.is_favorited.filter(
+            user=request.user,
+            is_favorited=True
+        ).exists()
 
     def get_is_in_shopping_cart(self, recipe):
         request = self.context.get('request')
         if not request or not request.user.is_authenticated:
             return False
-        return recipe.is_favorited.filter(user=request.user, is_in_shopping_cart=True).exists()
+        return recipe.is_favorited.filter(
+            user=request.user,
+            is_in_shopping_cart=True
+        ).exists()
 
     def to_representation(self, instance):
         self.fields['tags'] = TagSerializer(many=True)
