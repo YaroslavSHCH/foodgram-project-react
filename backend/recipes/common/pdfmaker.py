@@ -23,6 +23,10 @@ def pdf_shopping_list_maker(shopping_list):
     for ingredient, count in shopping_list.items():
         pdf.drawString(start_x, start_y, ingredient.capitalize() + " " + count)
         start_y -= 30
+        if start_y <= 40:
+            pdf.showPage()
+            start_y = 700
+            pdf.setFont('times', 16)
     pdf.setFont('Helvetica', 14)
     pdf.setFillColorRGB(1, 0, 0)
     pdf.drawString(140, 20, "YASHCH with love to Yandex Praktikum Team <3")
