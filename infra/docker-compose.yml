@@ -9,9 +9,7 @@ services:
       - ../.env
 
   web:
-    build:
-        context: ../backend
-        dockerfile: Dockerfile
+    image: yashch/praktikum:foodgram-web
     restart: always
     volumes:
       - static_value:/backend/static/
